@@ -1,36 +1,18 @@
+require('dotenv').config();
 const express = require('express');
-const {PrismaClient}  = require('@prisma/client');
-
-const router = express.Router();
+const user = require('./routes/user/user');
 
 const app = express();
-const {user} = new PrismaClient();
-
 app.use(express.json())
+app.use('/user',user);
 
-app.get('/', async (req,res)=>{
+app.get('/', (req,res)=>{
 
-  const {name,email} = req.body;
-  try{
-  const result = await user.create({
-      data:{
-        name,
-        email
-      },
-      select:{
-          "name": true,
-          "email" : false
-      }
-  });
-
-  res.json(result);
-  }catch(e){
-      console.log(e);
-      res.sendStatus(400);
-  }
+res.send(" front index js");
 
 });
 
-app.listen('5000',()=>{
-    console.log(" connect baby");
+
+app.listen(process.env.PORT,()=>{
+    console.log(`Server created and listening on the port ${process.env.PORT} !!`);
 })
