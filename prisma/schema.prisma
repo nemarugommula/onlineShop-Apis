@@ -1,0 +1,177 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Profile related tables
+
+enum Role {
+  USER
+  ADMIN
+}
+
+
+model  User{
+  @@map(name: "user")
+  id  Int  @id @default(autoincrement())
+  username  String   @db.VarChar(100)
+  password  String   @db.VarChar(500)
+  email String? @unique @db.VarChar(100)
+  mobile String? @unique
+  role Role @default(USER)
+  profile Profile[]
+}
+
+model Profile_address{
+  @@map(name: "profile_address")
+  id Int @id @default(autoincrement())
+  profile Profile @relation(fields: [profile_id], references :[id])
+  profile_id Int
+  address_line1 String @db.VarChar(100)
+  address_line2 String? @db.VarChar(100)
+  city String @db.VarChar(100)
+  postal_code String @db.VarChar(50)
+  country String @db.VarChar(50)
+  telephone String?
+  default Boolean @default(false)
+  mobile String
+  orders Order_detail[]
+}
+
+
+model Profile {
+  @@map(name: "profile")
+  id Int @id @default(autoincrement())
+  user User @relation(fields:[user_id],references:[id])
+  user_id Int
+  profile_name  String   @db.VarChar(100)
+  first_name String?  @db.VarChar(100)
+  last_name  String?  @db.VarChar(100)
+  created_at DateTime @default(now())
+  modified_at DateTime @updatedAt
+  default Boolean @default(false)
+  address Profile_address[]
+  order Order_detail?
+  shopping_session Shopping_session?
+}
+
+
+//Product related tables
+
+model Product_inventory{
+  @@map(name : "product_inventory")
+  id Int @id @default(autoincrement())
+  quantity Int @default(0)
+  created_at DateTime @default(now())
+  modified_at DateTime @updatedAt
+  deleted_at DateTime 
+  product Product?
+}
+
+model Product{
+  @@map(name : "product")
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(200)
+  price String @db.VarChar(50)
+  inventory Product_inventory @relation(fields:[inventory_id],references:[id])
+  inventory_id Int
+  discount Discount @relation(fields:[discount_id],references:[id])
+  discount_id Int
+  category Product_category @relation(fields:[category_id],references:[id])
+  category_id Int
+  created_at DateTime @default(now())
+  modified_at DateTime @updatedAt
+  deleted_at DateTime 
+  cart_item Cart_item[]
+  order_items Order_item?
+}
+
+model Product_category{
+  @@map(name: "product_category")
+  id Int @id @default(autoincrement())
+  name String @unique @db.VarChar(200)
+  description String @db.VarChar(500)
+  created_at DateTime @default(now())
+  modified_at DateTime @updatedAt
+  deleted_at DateTime 
+  product Product[]
+}
+
+
+model Discount{
+  @@map(name:"discount")
+  id Int @id @default(autoincrement())
+  name String
+  description String 
+  discount_percent Decimal @default(0)
+  active Boolean
+  created_at DateTime @default(now())
+  modified_at DateTime @updatedAt
+  deleted_at DateTime 
+  product Product[]
+}
+
+model Cart_item{
+@@map(name : "cart_item")
+id Int @id @default(autoincrement())
+session Shopping_session @relation(fields:[session_id],references:[id])
+session_id Int
+product Product @relation(fields:[product_id],references:[id])
+product_id Int
+quantity Int @default(1)
+created_at DateTime @default(now())
+modified_at DateTime @updatedAt
+}
+
+model Shopping_session{
+@@map(name : "shopping_session")
+id Int @id @default(autoincrement())
+total Decimal @default(0)
+cart Cart_item[]
+created_at DateTime @default(now())
+modified_at DateTime @updatedAt
+Profile Profile @relation(fields:[profile_id], references :[id])
+profile_id Int
+}
+
+model Order_item{
+@@map(name : "order_item")
+id Int @id @default(autoincrement())
+order Order_detail @relation(fields:[order_id],references:[id])
+order_id Int
+product Product @relation(fields:[product_id],references:[id])
+product_id Int
+created_at DateTime @default(now())
+modified_at DateTime @updatedAt
+}
+
+model Order_detail{
+@@map(name : "order_detail")
+id Int @id @default(autoincrement())
+Profile Profile @relation(fields:[profile_id], references :[id])
+profile_id Int
+total Decimal @default(0)
+address Profile_address @relation(fields:[address_id],references:[id])
+address_id Int
+payment Payment_details?
+created_at DateTime @default(now())
+modified_at DateTime @updatedAt
+order_items Order_item[]
+}
+
+model Payment_details{
+id Int @id @default(autoincrement())
+amount Decimal @default(0)
+status String
+created_at DateTime @default(now())
+modified_at DateTime @updatedAt
+order Order_detail @relation(fields:[order_id],references:[id])
+order_id Int
+}
