@@ -1,42 +1,75 @@
 const router = require("express").Router();
 const { PrismaClient } = require("@prisma/client");
-
+const {
+  filterCreation,
+  authenticationToken,
+  syncVariableTypesToDatabaseTypes,
+} = require("../../middleware/utils");
 const { User } = new PrismaClient();
+const {
+  onlyAdmin,
+  rephraseUserInQueryForUserTable,
+  userOrAdmin,
+  rephraseOnlyQuery,
+} = require("../../middleware/warriers");
 
-router.post("/", async(req, res) => {
-  const result = await createUser(req.body);
-  res.status(result.status).send(result);
-});
+const bcrypt = require("bcrypt");
+const CRYPT_LEN = 10;
 
-const createUser = async ({ username, password, email, mobile }) => {
-  let result = {};
-  try {
+router.use(rephraseOnlyQuery);
+router
+  .route("/")
+  .get(
+    authenticationToken,
+    rephraseUserInQueryForUserTable,
+    async (req, res) => {
+      const prismaQuery = {
+        where: {
+          ...syncVariableTypesToDatabaseTypes(req.query),
+        },
+      };
+      if (req.include) prismaQuery["include"] = req.include;
+      const response = await User.findMany(prismaQuery);
+      console.log(" response : " + JSON.stringify(response));
+      res.status(200).send(response);
+    }
+  )
+  .post(filterCreation, async (req, res) => {
+    const hash = bcrypt.hashSync(req.body.password, CRYPT_LEN);
     const response = await User.create({
       data: {
-        username,
-        password,
-        email,
-        mobile,
-      },
-      select: {
-        username: true,
-        email: true,
-        mobile: true,
+        ...syncVariableTypesToDatabaseTypes(req.body),
+        password: hash,
       },
     });
-    result = {...response,status:'201'};
-  } catch (err) {
-     result = {status:'400',message:'unable to create user'}
-  }
-  return result;
-};
+    console.log(" response : --- > " + JSON.stringify(response));
+    res.status(201).send(response);
+  })
+  .put(
+    authenticationToken,
+    rephraseUserInQueryForUserTable,
+    async (req, res) => {
+      const response = await User.update({
+        where: {
+          ...syncVariableTypesToDatabaseTypes(req.query),
+        },
+        data: {
+          ...syncVariableTypesToDatabaseTypes(req.body),
+        },
+      });
+      console.log(" response : --- > " + JSON.stringify(response));
 
+      res.status(200).send(response);
+    }
+  )
+  .delete(authenticationToken, onlyAdmin, async (req, res) => {
+    const response = await User.delete({
+      where: {
+        ...syncVariableTypesToDatabaseTypes(req.query),
+      },
+    });
 
-
-router.get('/',async (req,res)=>{
-    const response = await User.findMany();
-    res.send(response);
-});
-
+    res.status(200).send(response);
+  });
 
 module.exports = router;

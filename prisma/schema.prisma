@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Profile related tables
+// user related tables
 
 enum Role {
   USER
@@ -21,19 +21,30 @@ enum Role {
 model  User{
   @@map(name: "user")
   id  Int  @id @default(autoincrement())
+  first_name String?  @db.VarChar(100)
+  last_name  String?  @db.VarChar(100)
   username  String   @db.VarChar(100)
   password  String   @db.VarChar(500)
-  email String? @unique @db.VarChar(100)
+  email String @unique @db.VarChar(100)
+  picture String? @db.VarChar(200) @default("/profile.svg")
   mobile String? @unique
   role Role @default(USER)
-  profile Profile[]
+  address Address[]
+  order Order[]
+  session Session?
+  created_at DateTime @default(now())
+  modified_at DateTime @updatedAt
+  wishlist Wishlist[]
+  ticket Ticket[]
+  product_review Product_review[]
 }
 
-model Profile_address{
-  @@map(name: "profile_address")
+
+model Address{
+  @@map(name: "address")
   id Int @id @default(autoincrement())
-  profile Profile @relation(fields: [profile_id], references :[id])
-  profile_id Int
+  user User @relation(fields: [user_id], references :[id])
+  user_id Int
   address_line1 String @db.VarChar(100)
   address_line2 String? @db.VarChar(100)
   city String @db.VarChar(100)
@@ -42,36 +53,18 @@ model Profile_address{
   telephone String?
   default Boolean @default(false)
   mobile String
-  orders Order_detail[]
+  orders Order[]
 }
-
-
-model Profile {
-  @@map(name: "profile")
-  id Int @id @default(autoincrement())
-  user User @relation(fields:[user_id],references:[id])
-  user_id Int
-  profile_name  String   @db.VarChar(100)
-  first_name String?  @db.VarChar(100)
-  last_name  String?  @db.VarChar(100)
-  created_at DateTime @default(now())
-  modified_at DateTime @updatedAt
-  default Boolean @default(false)
-  address Profile_address[]
-  order Order_detail?
-  shopping_session Shopping_session?
-}
-
 
 //Product related tables
 
-model Product_inventory{
-  @@map(name : "product_inventory")
+model Inventory{
+  @@map(name : "inventory")
   id Int @id @default(autoincrement())
   quantity Int @default(0)
+  name String? @db.VarChar(100)
   created_at DateTime @default(now())
   modified_at DateTime @updatedAt
-  deleted_at DateTime 
   product Product?
 }
 
@@ -80,27 +73,40 @@ model Product{
   id Int @id @default(autoincrement())
   name String @db.VarChar(200)
   price String @db.VarChar(50)
-  inventory Product_inventory @relation(fields:[inventory_id],references:[id])
+  inventory Inventory @relation(fields:[inventory_id],references:[id])
   inventory_id Int
+  picture String? @db.VarChar(200)
   discount Discount @relation(fields:[discount_id],references:[id])
   discount_id Int
-  category Product_category @relation(fields:[category_id],references:[id])
+  sell_count Int? @default(0)
+  category Category @relation(fields:[category_id],references:[id])
   category_id Int
   created_at DateTime @default(now())
   modified_at DateTime @updatedAt
-  deleted_at DateTime 
   cart_item Cart_item[]
-  order_items Order_item?
+  order_items Order_item[]
+  whichlist Wishlist[]
+  review Product_review[]
 }
 
-model Product_category{
-  @@map(name: "product_category")
+model Wishlist{
+   @@map(name : "wishlist")
+  id Int @id @default(autoincrement())
+    user User @relation(fields:[user_id],references:[id])
+    product Product @relation(fields:[product_id],references:[id])
+
+  user_id Int
+  product_id Int
+}
+
+model Category{
+  @@map(name: "category")
   id Int @id @default(autoincrement())
   name String @unique @db.VarChar(200)
   description String @db.VarChar(500)
   created_at DateTime @default(now())
+  picture String? @db.VarChar(200)
   modified_at DateTime @updatedAt
-  deleted_at DateTime 
   product Product[]
 }
 
@@ -114,14 +120,13 @@ model Discount{
   active Boolean
   created_at DateTime @default(now())
   modified_at DateTime @updatedAt
-  deleted_at DateTime 
   product Product[]
 }
 
 model Cart_item{
 @@map(name : "cart_item")
 id Int @id @default(autoincrement())
-session Shopping_session @relation(fields:[session_id],references:[id])
+session Session @relation(fields:[session_id],references:[id])
 session_id Int
 product Product @relation(fields:[product_id],references:[id])
 product_id Int
@@ -130,21 +135,21 @@ created_at DateTime @default(now())
 modified_at DateTime @updatedAt
 }
 
-model Shopping_session{
-@@map(name : "shopping_session")
+model Session{
+@@map(name : "session")
 id Int @id @default(autoincrement())
-total Decimal @default(0)
+total Decimal? @default(0)
 cart Cart_item[]
 created_at DateTime @default(now())
 modified_at DateTime @updatedAt
-Profile Profile @relation(fields:[profile_id], references :[id])
-profile_id Int
+user User @relation(fields:[user_id], references :[id])
+user_id Int
 }
 
 model Order_item{
 @@map(name : "order_item")
 id Int @id @default(autoincrement())
-order Order_detail @relation(fields:[order_id],references:[id])
+order Order @relation(fields:[order_id],references:[id])
 order_id Int
 product Product @relation(fields:[product_id],references:[id])
 product_id Int
@@ -152,26 +157,63 @@ created_at DateTime @default(now())
 modified_at DateTime @updatedAt
 }
 
-model Order_detail{
-@@map(name : "order_detail")
+model Order{
+@@map(name : "order")
 id Int @id @default(autoincrement())
-Profile Profile @relation(fields:[profile_id], references :[id])
-profile_id Int
+user User @relation(fields:[user_id], references :[id])
+user_id Int
 total Decimal @default(0)
-address Profile_address @relation(fields:[address_id],references:[id])
+address Address @relation(fields:[address_id],references:[id])
 address_id Int
-payment Payment_details?
+payment Payment?
 created_at DateTime @default(now())
 modified_at DateTime @updatedAt
 order_items Order_item[]
 }
 
-model Payment_details{
+model Payment{
 id Int @id @default(autoincrement())
 amount Decimal @default(0)
 status String
 created_at DateTime @default(now())
 modified_at DateTime @updatedAt
-order Order_detail @relation(fields:[order_id],references:[id])
+order Order @relation(fields:[order_id],references:[id])
 order_id Int
+}
+
+
+model Images{
+  id Int @id @default(autoincrement()) 
+  table_name String @db.VarChar(200)
+  url String @db.VarChar(500)
+  record_id String @db.VarChar(200)
+  name String @db.VarChar(200)
+}
+
+
+model Campaign{
+  id Int @id @default(autoincrement()) 
+  table_name String @db.VarChar(200)
+  url String @db.VarChar(500)
+  record_id String @db.VarChar(200)
+}
+
+model Ticket{
+  id Int @id @default(autoincrement()) 
+  user User @relation(fields:[user_id], references :[id])
+  description String @db.VarChar(500)
+  user_id Int
+  name String @db.VarChar(200)
+  created_at DateTime @default(now())
+  modified_at DateTime @updatedAt
+}
+
+model Product_review{
+  id Int @id @default(autoincrement()) 
+  user User @relation(fields:[user_id], references :[id])
+  review String @db.VarChar(500)
+  rating String? 
+  product Product @relation(fields:[product_id],references:[id])
+  user_id Int
+  product_id Int
 }

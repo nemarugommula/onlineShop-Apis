@@ -4,10 +4,10 @@ const {
   authenticationToken,
   syncVariableTypesToDatabaseTypes,
 } = require("../../middleware/utils");
-const { Payment } = new PrismaClient();
+const { Order } = new PrismaClient();
 const {
   onlyAdmin,
-  rephraseUserInQueryForPaymnentAndOrder,
+  rephraseUserInQuery,
   userOrAdmin,
   rephraseOnlyQuery,
 } = require("../../middleware/warriers");
@@ -18,31 +18,37 @@ router
   .get(
     authenticationToken,
     userOrAdmin,
-    rephraseUserInQueryForPaymnentAndOrder,
+    rephraseUserInQuery,
     async (req, res) => {
-      const response = await Payment.findMany({
+      const response = await Order.findMany({
         where: {
-          ...syncVariableTypesToDatabaseTypes(req.query),
+          ...syncVariableTypesToDatabaseTypes(req.body.query),
         },
       });
 
       res.status(200).send(response);
     }
   )
-  .post(userOrAdmin, async (req, res) => {
-    const response = await Payment.create({
-      data: {
-        ...syncVariableTypesToDatabaseTypes(req.body),
-      },
-    });
-
-    res.status(201).send(response);
-  })
-  .put(
+  .post(
+    authenticationToken,
     userOrAdmin,
-    rephraseUserInQueryForPaymnentAndOrder,
+    rephraseUserInQuery,
     async (req, res) => {
-      const response = await Payment.update({
+      const response = await Order.create({
+        data: {
+          ...syncVariableTypesToDatabaseTypes(req.body),
+        },
+      });
+
+      res.status(201).send(response);
+    }
+  )
+  .put(
+    authenticationToken,
+    userOrAdmin,
+    rephraseUserInQuery,
+    async (req, res) => {
+      const response = await Order.update({
         where: {
           ...syncVariableTypesToDatabaseTypes(req.query),
         },
@@ -54,8 +60,8 @@ router
       res.status(201).send(response);
     }
   )
-  .delete(onlyAdmin, async (req, res) => {
-    const response = await Payment.delete({
+  .delete(authenticationToken, onlyAdmin, async (req, res) => {
+    const response = await Order.delete({
       where: {
         ...syncVariableTypesToDatabaseTypes(req.query),
       },

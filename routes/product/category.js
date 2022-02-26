@@ -1,40 +1,38 @@
 const router = require("express").Router();
 const { PrismaClient } = require("@prisma/client");
 const {
-  syncVariableTypesToDatabaseTypes,
   authenticationToken,
-  removeIdsSuffixes,
+  syncVariableTypesToDatabaseTypes,
 } = require("../../middleware/utils");
+const { Category } = new PrismaClient();
 const { onlyAdmin, rephraseOnlyQuery } = require("../../middleware/warriers");
 
-const { Product } = new PrismaClient();
 router.use(rephraseOnlyQuery);
 router
   .route("/")
   .get(async (req, res) => {
-    const prismaQuery = {
+    const response = await Category.findMany({
       where: {
         ...syncVariableTypesToDatabaseTypes(req.query),
       },
-    };
-    if (req.include) prismaQuery["include"] = req.include;
-
-    const response = await Product.findMany(prismaQuery);
+    });
     if (response) console.log(" response : " + JSON.stringify(response));
+
     res.status(200).send(response);
   })
-  .post(authenticationToken, onlyAdmin, removeIdsSuffixes, async (req, res) => {
-    console.log(" before creation : " + JSON.stringify(req.body));
-    const response = await Product.create({
+  .post(authenticationToken, onlyAdmin, async (req, res) => {
+    const response = await Category.create({
       data: {
         ...syncVariableTypesToDatabaseTypes(req.body),
       },
     });
     console.log(" response : " + JSON.stringify(response));
+
     res.status(201).send(response);
   })
   .put(authenticationToken, onlyAdmin, async (req, res) => {
-    const response = await Product.update({
+    console.log(" inside put");
+    const response = await Category.update({
       where: {
         ...syncVariableTypesToDatabaseTypes(req.query),
       },
@@ -42,21 +40,18 @@ router
         ...syncVariableTypesToDatabaseTypes(req.body),
       },
     });
+    console.log(" response : " + JSON.stringify(response));
 
-    if (res) console.log(" response : " + JSON.stringify(response));
     res.status(201).send(response);
   })
   .delete(authenticationToken, onlyAdmin, async (req, res) => {
-    const response = await Product.delete({
+    const response = await Category.delete({
       where: {
         ...syncVariableTypesToDatabaseTypes(req.query),
       },
     });
-    console.log(
-      "------------------------------------------>>>>>" +
-        JSON.stringify(response)
-    );
-    if (res) console.log(" response : " + JSON.stringify(response));
+    if (response) console.log(" response : " + JSON.stringify(response));
+
     res.status(200).send(response);
   });
 
