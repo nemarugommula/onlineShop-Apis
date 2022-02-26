@@ -11,12 +11,14 @@ router.use(rephraseOnlyQuery);
 router
   .route("/")
   .get(async (req, res) => {
-    const response = await Category.findMany({
+    const prismaQuery = {
       where: {
         ...syncVariableTypesToDatabaseTypes(req.query),
       },
-    });
-    if (response) console.log(" response : " + JSON.stringify(response));
+    };
+    if (req.include) prismaQuery["include"] = req.include;
+    const response = await Category.findMany(prismaQuery);
+    console.log(" response : " + JSON.stringify(response));
 
     res.status(200).send(response);
   })

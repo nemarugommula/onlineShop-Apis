@@ -4,31 +4,39 @@ const {
   syncVariableTypesToDatabaseTypes,
   authenticationToken,
 } = require("../../middleware/utils");
+const { onlyAdmin, rephraseOnlyQuery } = require("../../middleware/warriers");
 
 const { Product_review } = new PrismaClient();
 
 function mapUserId(req, res, next) {
   if (req && req.user && req.user.role == "USER") {
     req.query.user_id = req.user.id;
+    req.body.user_id = req.user.id;
   }
   next();
 }
 
-router.use(authenticationToken);
+router.use(authenticationToken, rephraseOnlyQuery);
 router
   .route("/")
   .get(async (req, res) => {
-    const response = await Product_review.findMany({
+    const prismaQuery = {
       where: {
         ...syncVariableTypesToDatabaseTypes(req.query),
       },
-    });
+    };
 
-    console.log(" response : " + JSON.stringify(response));
+    console.log(" prisma query : " + JSON.stringify(prismaQuery));
+    if (req.include) prismaQuery["include"] = req.include;
+    console.log(" prisma query : " + JSON.stringify(prismaQuery));
+
+    const response = await Product_review.findMany(prismaQuery);
+
+    console.log(" response :-------->  " + JSON.stringify(response));
     res.send(response);
   })
   .post(mapUserId, async (req, res) => {
-    console.log(" ---");
+    console.log(" ---" + JSON.stringify(req.body));
     const response = await Product_review.create({
       data: {
         ...syncVariableTypesToDatabaseTypes(req.body),

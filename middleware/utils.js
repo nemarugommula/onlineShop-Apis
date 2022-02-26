@@ -54,6 +54,7 @@ const intDataTypes = [
   "quantity",
   "session_id",
   "product_id",
+  "sell_count",
 ];
 
 const booleanDataTypes = [

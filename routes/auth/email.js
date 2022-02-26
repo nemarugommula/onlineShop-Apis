@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient, Role } = require("@prisma/client");
 const { filterCreation } = require("../../middleware/utils");
 const { User, Profile } = new PrismaClient();
 const bcrypt = require("bcrypt");
