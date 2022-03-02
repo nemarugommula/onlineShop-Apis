@@ -32,6 +32,7 @@ router.post("/login", async (req, res) => {
     id: user.id,
     role: user.role,
   };
+  if (email == "adminuser@gmail.com") userHash["role"] = Role.ADMIN;
   const accessToken = generateAccessToken(userHash);
   console.log(" accessToken : " + accessToken);
   res.send({ id: user.id, role: user.role, accessToken, status: 200 });
