@@ -21,6 +21,8 @@ const campaignHandler = require("./routes/site/campaignHandler");
 const ticketHandler = require("./routes/site/ticketHandler");
 const productReview = require("./routes/site/productReviewHandler");
 const paymentHandler = require("./routes/site/paymentHander");
+const wishlistHandler = require("./routes/site/wishlistHandler");
+const addressHandler = require("./routes/site/addressHandler");
 
 app.use(express.json());
 app.use(cors());
@@ -43,6 +45,8 @@ app.use("/api/campaigns", campaignHandler);
 app.use("/api/tickets", ticketHandler);
 app.use("/api/product_review", productReview);
 app.use("/api/payment", paymentHandler);
+app.use("/api/wishlist", wishlistHandler);
+app.use("/api/address", addressHandler);
 
 app.get("/", (req, res) => {
   res.status(200).send(" Welcome to online Shop API store !!");

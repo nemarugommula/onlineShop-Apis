@@ -32,7 +32,9 @@ router
   })
   .put(authenticationToken, onlyAdmin, async (req, res) => {
     const response = await Inventory.update({
-      where: {},
+      where: {
+        ...syncVariableTypesToDatabaseTypes(req.query),
+      },
       data: {
         ...syncVariableTypesToDatabaseTypes(req.body),
       },

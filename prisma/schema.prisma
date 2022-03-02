@@ -90,11 +90,10 @@ model Product{
 }
 
 model Wishlist{
-   @@map(name : "wishlist")
+  @@map(name : "wishlist")
   id Int @id @default(autoincrement())
-    user User @relation(fields:[user_id],references:[id])
-    product Product @relation(fields:[product_id],references:[id])
-
+  user User @relation(fields:[user_id],references:[id])
+  product Product @relation(fields:[product_id],references:[id])
   user_id Int
   product_id Int
 }
@@ -151,8 +150,11 @@ model Order_item{
 id Int @id @default(autoincrement())
 order Order @relation(fields:[order_id],references:[id])
 order_id Int
+quantify Int @default(1)
 product Product @relation(fields:[product_id],references:[id])
 product_id Int
+saved Int @default(0)
+total Int
 created_at DateTime @default(now())
 modified_at DateTime @updatedAt
 }
