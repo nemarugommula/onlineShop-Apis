@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "start":"node index.js"
+    "start": "node index.js",
+    "run": "node index.js"
   },
   "author": "vishnu.nemarugommula",
   "license": "ISC",
@@ -17,10 +18,10 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "jsonwebtoken": "^8.5.1",
-    "razorpay": "^2.8.0"
+    "razorpay": "^2.8.0",
+    "prisma": "^3.9.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15",
-    "prisma": "^3.9.1"
+    "nodemon": "^2.0.15"
   }
 }
