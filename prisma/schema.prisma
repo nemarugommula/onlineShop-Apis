@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://b99debc22a9df6:c14c43aa@us-cdbr-east-05.cleardb.net/heroku_ba8061174d9965f"
+  url      = "mysql://root:@localhost:3306/onlinestore"
 }
 
 // user related tables
