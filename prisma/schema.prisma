@@ -8,7 +8,6 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = "mysql://b99debc22a9df6:c14c43aa@us-cdbr-east-05.cleardb.net/heroku_ba8061174d9965f"
-  //env("CLEARDB_DATABASE_URL")
 }
 
 // user related tables
@@ -79,6 +78,10 @@ model Product{
   picture String? @db.VarChar(200)
   discount Discount @relation(fields:[discount_id],references:[id])
   discount_id Int
+  benfits  String? @db.VarChar(500)
+  basic_info  String? @db.VarChar(500)
+  why_unique  String? @db.VarChar(500)
+  scientific_evidence  String? @db.VarChar(500)
   sell_count Int? @default(0)
   category Category @relation(fields:[category_id],references:[id])
   category_id Int

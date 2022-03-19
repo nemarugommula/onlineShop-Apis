@@ -20,6 +20,24 @@ const product = [
     update: "false",
   },
   {
+    field: "benfits",
+    type: "textarea",
+    create: "true",
+    update: "true",
+  },
+  {
+    field: "basic_info",
+    type: "textarea",
+    create: "true",
+    update: "true",
+  },
+  {
+    field: "scientific_evidence",
+    type: "textarea",
+    create: "true",
+    update: "true",
+  },
+  {
     field: "inventory_id",
     type: "choice",
     create: "true",
