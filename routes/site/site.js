@@ -20,6 +20,12 @@ const product = [
     update: "false",
   },
   {
+    field: "why_unique",
+    type: "textarea",
+    create: "true",
+    update: "true",
+  },
+  {
     field: "benfits",
     type: "textarea",
     create: "true",
