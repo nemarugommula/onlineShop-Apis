@@ -52,6 +52,10 @@ CREATE TABLE `product` (
     `inventory_id` INTEGER NOT NULL,
     `picture` VARCHAR(200) NULL,
     `discount_id` INTEGER NOT NULL,
+    `benfits` VARCHAR(500) NULL,
+    `basic_info` VARCHAR(500) NULL,
+    `why_unique` VARCHAR(500) NULL,
+    `scientific_evidence` VARCHAR(500) NULL,
     `sell_count` INTEGER NULL DEFAULT 0,
     `category_id` INTEGER NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -124,7 +128,10 @@ CREATE TABLE `session` (
 CREATE TABLE `order_item` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `order_id` INTEGER NOT NULL,
+    `quantify` INTEGER NOT NULL DEFAULT 1,
     `product_id` INTEGER NOT NULL,
+    `saved` INTEGER NOT NULL DEFAULT 0,
+    `total` INTEGER NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `modified_at` DATETIME(3) NOT NULL,
 

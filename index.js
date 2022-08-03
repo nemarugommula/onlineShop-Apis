@@ -52,8 +52,7 @@ app.get("/", (req, res) => {
   res.status(200).send(" Welcome to online Shop API store !!");
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log(
-    `Server created and listening on the port ${process.env.PORT} !!`
-  );
+app.listen(3500, () => {
+  // ${process.env.PORT}
+  console.log(`Server created and listening on the port  !!`);
 });

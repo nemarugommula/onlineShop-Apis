@@ -1,7 +1,7 @@
 {
   "name": "online_shopping_apis",
   "version": "1.0.0",
-  "description": "Api's to support online buying and selling",
+  "description": "Backend for online shopping",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
