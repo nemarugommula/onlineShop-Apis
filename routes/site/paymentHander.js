@@ -7,8 +7,8 @@ const Razorpay = require("razorpay");
 const { Campaign } = new PrismaClient();
 
 const razorpayInstance = new Razorpay({
-  key_id: "rzp_test_fvPHjqq665nlyW",
-  key_secret: "JiQSwUkRqudo0NfidN7Tjd0k",
+  key_id: "",
+  key_secret: "",
 });
 
 router.post("/create_order", function (req, res) {
